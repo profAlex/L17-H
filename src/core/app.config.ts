@@ -44,6 +44,10 @@ export class AppConfig {
     @IsNotEmpty({ message: 'MONGO_URI не может быть пустым' })
     readonly MONGO_URI: string;
 
+    @IsString({ message: 'POSTGRES_URI должен быть строкой' })
+    @IsNotEmpty({ message: 'POSTGRES_URI не может быть пустым' })
+    readonly POSTGRES_URI: string;
+
     // @IsString({ message: 'MONGO_URI_LOCAL должен быть строкой' })
     // @IsNotEmpty({ message: 'MONGO_URI_LOCAL не может быть пустым' })
     // readonly MONGO_URI_LOCAL: string;
@@ -77,6 +81,7 @@ export class AppConfig {
         this.MAIL_PASS = getString('MAIL_PASS');
         this.MONGO_URI = getString('MONGO_URI');
         // this.MONGO_URI_LOCAL = getString('MONGO_URI_LOCAL');
+        this.POSTGRES_URI = getString('POSTGRES_URI');
         this.THROTTLE_TTL = getNumber('THROTTLE_TTL');
         this.THROTTLE_LIMIT = getNumber('THROTTLE_LIMIT');
 

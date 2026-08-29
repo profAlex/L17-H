@@ -17,6 +17,7 @@ import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exc
 import { CqrsModule } from '@nestjs/cqrs';
 import { AppConfig } from './core/app.config';
 import { SecurityDevicesModule } from './modules/security/security.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
     //все модули должны быть заимпортированы в корневой модуль, либо напрямую, либо по цепочке (через другие модули)
@@ -28,6 +29,20 @@ import { SecurityDevicesModule } from './modules/security/security.module';
                 return {
                     uri: appConfig.MONGO_URI,
 
+                };
+            },
+        }),
+        TypeOrmModule.forRootAsync({
+            inject: [AppConfig],
+            useFactory: async (appConfig: AppConfig) => {
+                return {
+                    type: 'postgres',
+                    url: appConfig.POSTGRES_URI, // <--- В TypeORM именно `url`, а не `uri`
+                    ssl: {
+                        rejectUnauthorized: false, // Необходим для Neon/Supabase
+                    },
+                    autoLoadEntities: false, // надо поменять на true убдет когда будем полноценно использовать TypeORM
+                    synchronize: false, // надо поменять на true убдет когда будем полноценно использовать TypeORM
                 };
             },
         }),
