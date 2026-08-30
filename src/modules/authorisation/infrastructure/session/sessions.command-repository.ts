@@ -6,6 +6,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 export type SessionParameters = {
     userId: string;
@@ -23,12 +25,16 @@ type SoftDeleteSessionsParams = {
 export class SessionsCommandRepository {
     constructor(
         @InjectModel(Session.name) private SessionModel: SessionModelType,
+        @InjectDataSource() protected dataSource: DataSource,
     ) {}
 
     async save(session: SessionDocument): Promise<void> {
         await session.save();
     }
 
+    async toTestLogin() {
+        return this.dataSource.toString();
+    }
 
     async findSessionBySessionId(
         sessionId: string,
