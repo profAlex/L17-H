@@ -14,10 +14,10 @@ export type TokensPair = {
 };
 
 // логиним юзера: а именно - создаем пару токенов и создаем сессию для этого юзера, возвращаем токены
-export class LoginUser extends Command<TokensPair> {
+export class LoginUser extends Command<string> {
     constructor(
-        public readonly userId: string,
-        public readonly req: Request,
+        // public readonly userId: string,
+        // public readonly req: Request,
     ) {
         super();
     }
@@ -33,7 +33,9 @@ export class LoginUserHandler implements ICommandHandler<LoginUser> {
         private jwtTokenProvider: JwtTokenProvider,
     ) {}
 
-    async execute({ userId, req }: LoginUser): Promise<TokensPair> {
+    async execute(
+        // { userId, req }: LoginUser
+    ): Promise<string> {
         // // создаем мета данные для сессии
         // const deviceName = req.get('User-Agent') || 'unknown device'; // или req.headers['user-agent'] - обязательно с малыми, т.к. по стандарту http все приводится к строчным. Методы .get и .header же осуществляют приведение к строчным(маленьким) под капотом
         // // const deviceIp = req.ip || 'unknown ip';
@@ -73,6 +75,6 @@ export class LoginUserHandler implements ICommandHandler<LoginUser> {
         //     expiresAt: tokensPair.expiresAt,
         // };
 
-        return this.sessionsCommandRepository.toTestLogin();
+        return await this.sessionsCommandRepository.toTestLogin();
     }
 }

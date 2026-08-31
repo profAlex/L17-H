@@ -45,34 +45,50 @@ export class AuthController {
         console.log('AuthController created');
     }
 
-    // Try login user to the system
     @HttpCode(HttpStatus.OK)
-    @UseGuards(LocalAuthGuard)
-    // @UseGuards(ThrottlerGuard)
-    @UseGuards(CustomThrottlerGuard)
-    @Post('login')
-    async login(
+    @Get('test')
+    async test(
         //@Body() body: UserLoginInputDto,
-        @ExtractUserIfExistsFromRequest() user: UserAccessTokenContextDto,
-        @Res({ passthrough: true }) res: Response,
-        @Req() req: Request,
-    ): Promise<{
-        accessToken: string;
-    }> {
-        const tokensPair: TokensPair = await this.commandBus.execute<LoginUser>(
-            new LoginUser(user.userId, req),
+    ): Promise<
+        string
+    > {
+        const result: string = await this.commandBus.execute<LoginUser>(
+            new LoginUser(),
         );
 
-        res.cookie('refreshToken', tokensPair.refreshToken, {
-            httpOnly: true,
-            secure: true,
-            // sameSite: 'none',
-            path: '/',
-            expires: tokensPair.expiresAt,
-        });
+        console.log(result);
 
-        return { accessToken: tokensPair.accessToken };
+        return result;
     }
+
+    // // Try login user to the system
+    // @HttpCode(HttpStatus.OK)
+    // @UseGuards(LocalAuthGuard)
+    // // @UseGuards(ThrottlerGuard)
+    // @UseGuards(CustomThrottlerGuard)
+    // @Post('login')
+    // async login(
+    //     //@Body() body: UserLoginInputDto,
+    //     @ExtractUserIfExistsFromRequest() user: UserAccessTokenContextDto,
+    //     @Res({ passthrough: true }) res: Response,
+    //     @Req() req: Request,
+    // ): Promise<{
+    //     accessToken: string;
+    // }> {
+    //     const tokensPair: TokensPair = await this.commandBus.execute<LoginUser>(
+    //         new LoginUser(user.userId, req),
+    //     );
+    //
+    //     res.cookie('refreshToken', tokensPair.refreshToken, {
+    //         httpOnly: true,
+    //         secure: true,
+    //         // sameSite: 'none',
+    //         path: '/',
+    //         expires: tokensPair.expiresAt,
+    //     });
+    //
+    //     return { accessToken: tokensPair.accessToken };
+    // }
 
     // Generate new pair of access and refresh tokens (in cookie client must send
     // correct refreshToken that will be revoked after refreshing)
