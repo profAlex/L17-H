@@ -33,13 +33,54 @@ export class SessionsCommandRepository {
     }
 
     async toTestCreateDb() {
-        return this.dataSource.query(`CREATE DATABASE "Sprint17"
-        WITH
-        OWNER = neondb_owner
-        ENCODING = 'UTF8'
-        LOCALE_PROVIDER = 'builtin'
-        CONNECTION LIMIT = -1
-        IS_TEMPLATE = False;`);
+        // return this.dataSource.query(`CREATE DATABASE "Sprint17"
+        // WITH
+        // OWNER = neondb_owner
+        // ENCODING = 'UTF8'
+        // LOCALE_PROVIDER = 'builtin'
+        // CONNECTION LIMIT = -1
+        // IS_TEMPLATE = False;`);
+
+//         return this.dataSource.query(`CREATE TABLE IF NOT EXISTS "users" (
+//     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+//     "login" VARCHAR(255) NOT NULL UNIQUE,
+//     "password_hash" VARCHAR(255) NOT NULL,
+//     "email" VARCHAR(255) NOT NULL UNIQUE,
+//     "first_name" VARCHAR(255) NOT NULL,
+//     "last_name" VARCHAR(255) NULL,
+//     "is_email_confirmed" BOOLEAN NOT NULL DEFAULT FALSE,
+//     "email_confirmation_code" VARCHAR(255) NULL,
+//     "email_confirmation_expiration_date" TIMESTAMPTZ NULL,
+//     "recovery_code" VARCHAR(255) NULL,
+//     "recovery_code_expiration_date" TIMESTAMPTZ NULL,
+//     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+//     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+//     "deleted_at" TIMESTAMPTZ NULL
+// );
+//
+// -- Частичный уникальный индекс для recovery_code (чтобы NULL не считался дубликатом)
+// CREATE UNIQUE INDEX IF NOT EXISTS "idx_users_recovery_code_unique"
+// ON "users" ("recovery_code")
+// WHERE "recovery_code" IS NOT NULL;
+//
+//
+// -- 2. Таблица сессий девайсов
+// CREATE TABLE IF NOT EXISTS "user_sessions" (
+//     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+//     "user_id" UUID NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
+//     "device_uuid" UUID NOT NULL,
+//     "device_name" VARCHAR(255) NOT NULL,
+//     "device_ip" VARCHAR(45) NOT NULL,
+//     "issued_at" TIMESTAMPTZ NOT NULL,
+//     "expires_at" TIMESTAMPTZ NOT NULL,
+//     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+//     "deleted_at" TIMESTAMPTZ NULL
+// );
+//
+// -- Индекс для быстрого поиска всех сессий конкретного юзера
+// CREATE INDEX IF NOT EXISTS "idx_user_sessions_user_id" ON "user_sessions" ("user_id");`);
+
+
     }
 
     async toTestQuery() {
