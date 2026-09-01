@@ -26,6 +26,8 @@ import { LogoutHandler } from './application/usecases/logout.usecase';
 import { BasicAuthStrategy } from './guards/basic/basic.strategy';
 import { JwtRefreshAuthGuard } from './guards/refresh-token/refresh-token.auth-guard';
 import { JwtRefreshTokenStrategy } from './guards/refresh-token/refresh-token.strategy';
+import { TestQueryHandler } from './application/usecases/test-query.usecase';
+import { TestCreateDbHandler } from './application/usecases/test-create-db.usecase';
 
 @Module({
     imports: [
@@ -60,6 +62,8 @@ import { JwtRefreshTokenStrategy } from './guards/refresh-token/refresh-token.st
         // SecurityDevicesController
         ],
     providers: [
+        TestCreateDbHandler,
+        TestQueryHandler,
         LoginUserHandler,
         RefreshTokenHandler,
         LogoutHandler,

@@ -34,6 +34,8 @@ import { CurrentUserMetaData } from '../decorators/extract-meta-data-from-req.de
 import { UserRefreshTokenContextAndMetaDataDto } from '../decorators/dto/user-refresh-token-context-and-meta-data.dto';
 import { Logout } from '../application/usecases/logout.usecase';
 import { CustomThrottlerGuard } from '../guards/custom-throttler/custom-throttler.guard';
+import { TestQuery } from '../application/usecases/test-query.usecase';
+import { TestCreateDb } from '../application/usecases/test-create-db.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -46,49 +48,80 @@ export class AuthController {
     }
 
     @HttpCode(HttpStatus.OK)
-    @Get('test')
-    async test(
+    @Get('testCreateDb')
+    async testCreateDb(
+        //@Body() body: UserLoginInputDto,
+    ): Promise<
+        void
+    > {
+        const result: string = await this.commandBus.execute<TestCreateDb>(
+            new TestCreateDb(),
+        );
+
+    //     CREATE TABLE "Profiles" (
+    //         "UserId" integer PRIMARY KEY,
+    //         "Hobby" varchar,
+    //         "Education" varchar
+    // );
+
+
+
+        console.log(result);
+
+        return;
+    }
+
+
+    @HttpCode(HttpStatus.OK)
+    @Get('testQuery')
+    async testQuery(
         //@Body() body: UserLoginInputDto,
     ): Promise<
         string
     > {
-        const result: string = await this.commandBus.execute<LoginUser>(
-            new LoginUser(),
+        const result: string = await this.queryBus.execute<TestQuery>(
+            new TestQuery(),
         );
+
+        //     CREATE TABLE "Profiles" (
+        //         "UserId" integer PRIMARY KEY,
+        //         "Hobby" varchar,
+        //         "Education" varchar
+        // );
 
         console.log(result);
 
         return result;
     }
 
-    // // Try login user to the system
-    // @HttpCode(HttpStatus.OK)
-    // @UseGuards(LocalAuthGuard)
-    // // @UseGuards(ThrottlerGuard)
-    // @UseGuards(CustomThrottlerGuard)
-    // @Post('login')
-    // async login(
-    //     //@Body() body: UserLoginInputDto,
-    //     @ExtractUserIfExistsFromRequest() user: UserAccessTokenContextDto,
-    //     @Res({ passthrough: true }) res: Response,
-    //     @Req() req: Request,
-    // ): Promise<{
-    //     accessToken: string;
-    // }> {
-    //     const tokensPair: TokensPair = await this.commandBus.execute<LoginUser>(
-    //         new LoginUser(user.userId, req),
-    //     );
-    //
-    //     res.cookie('refreshToken', tokensPair.refreshToken, {
-    //         httpOnly: true,
-    //         secure: true,
-    //         // sameSite: 'none',
-    //         path: '/',
-    //         expires: tokensPair.expiresAt,
-    //     });
-    //
-    //     return { accessToken: tokensPair.accessToken };
-    // }
+    // Try login user to the system
+    @HttpCode(HttpStatus.OK)
+    @UseGuards(LocalAuthGuard)
+    // @UseGuards(ThrottlerGuard)
+    @UseGuards(CustomThrottlerGuard)
+    @Post('login')
+    async login(
+        // @Body() body: UserLoginInputDto,
+        @ExtractUserIfExistsFromRequest() user: UserAccessTokenContextDto,
+        @Res({ passthrough: true }) res: Response,
+        @Req() req: Request,
+    ): Promise<{
+        accessToken: string;
+    }> {
+        const tokensPair: TokensPair = await this.commandBus.execute<LoginUser>(
+            new LoginUser(user.userId, req),
+        );
+
+        res.cookie('refreshToken', tokensPair.refreshToken, {
+            httpOnly: true,
+            secure: true,
+            // sameSite: 'none',
+            path: '/',
+            expires: tokensPair.expiresAt,
+        });
+
+        return { accessToken: tokensPair.accessToken };
+    }
 
     // Generate new pair of access and refresh tokens (in cookie client must send
     // correct refreshToken that will be revoked after refreshing)

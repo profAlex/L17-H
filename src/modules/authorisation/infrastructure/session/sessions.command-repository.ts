@@ -32,8 +32,18 @@ export class SessionsCommandRepository {
         await session.save();
     }
 
-    async toTestLogin() {
-        return this.dataSource.toString();
+    async toTestCreateDb() {
+        return this.dataSource.query(`CREATE DATABASE "Sprint17"
+        WITH
+        OWNER = neondb_owner
+        ENCODING = 'UTF8'
+        LOCALE_PROVIDER = 'builtin'
+        CONNECTION LIMIT = -1
+        IS_TEMPLATE = False;`);
+    }
+
+    async toTestQuery() {
+        return this.dataSource.query(`SELECT * FROM public."Profiles"`);
     }
 
     async findSessionBySessionId(
