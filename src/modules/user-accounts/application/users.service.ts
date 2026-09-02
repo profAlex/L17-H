@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../dto/create-user.dto';
-import { UsersRepository } from '../infrastructure/users.repository';
+import { UsersCommandRepository } from '../infrastructure/users.command-repository';
 import { CryptoService } from '../../../core/bcrypt/bcrypt.service';
 import { UUIDGeneratorUtil } from '../../../core/uuid-generation/uuid.service';
 import { UsersQueryRepository } from '../infrastructure/query/users.query-repository';
@@ -14,7 +14,7 @@ export class UsersService {
     constructor(
         //инжектирование модели в сервис через DI
         @InjectModel(User.name) private UserModel: UserModelType,
-        private usersCommandRepository: UsersRepository,
+        private usersCommandRepository: UsersCommandRepository,
         private usersQueryRepository: UsersQueryRepository,
         private cryptoService: CryptoService,
     ) {}

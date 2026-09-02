@@ -11,7 +11,7 @@ import {JwtStrategy} from "./guards/bearer/jwt.strategy";
 import {UsersService} from "../user-accounts/application/users.service";
 import {MongooseModule} from "@nestjs/mongoose";
 import {User, UserSchema} from "../user-accounts/domain/user.entity";
-import {UsersRepository} from "../user-accounts/infrastructure/users.repository";
+import {UsersCommandRepository} from "../user-accounts/infrastructure/users.command-repository";
 import {UsersQueryRepository} from "../user-accounts/infrastructure/query/users.query-repository";
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../core/app.config';
@@ -77,7 +77,7 @@ import { TestCreateDbHandler } from './application/usecases/test-create-db.useca
         JwtRefreshTokenStrategy,
         CryptoService,
         UsersService,
-        UsersRepository,
+        UsersCommandRepository,
         UsersQueryRepository,
         // AppConfig, // зарегистрировали этот класс в отдельном глобальном модуле CoreConfig
         JwtTokenProvider,

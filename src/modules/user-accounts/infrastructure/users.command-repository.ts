@@ -5,7 +5,7 @@ import {DomainException} from "../../../core/exceptions/domain-exceptions";
 import {DomainExceptionCode} from "../../../core/exceptions/domain-exception-codes";
 
 @Injectable()
-export class UsersRepository {
+export class UsersCommandRepository {
   //инжектирование модели через DI
   constructor(@InjectModel(User.name) private UserModel: UserModelType) {}
 

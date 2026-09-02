@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserModelType } from '../domain/user.entity';
-import { UsersRepository } from '../infrastructure/users.repository';
+import { UsersCommandRepository } from '../infrastructure/users.command-repository';
 
 @Injectable()
 export class UsersExternalService {
@@ -9,7 +9,7 @@ export class UsersExternalService {
     //инжектирование модели в сервис через DI
     @InjectModel(User.name)
     private UserModel: UserModelType,
-    private usersRepository: UsersRepository,
+    private usersRepository: UsersCommandRepository,
   ) {}
 
   async makeUserAsSpammer(userId: string) {

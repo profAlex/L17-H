@@ -89,7 +89,7 @@ export class AuthController {
         //         "Education" varchar
         // );
 
-        console.log(result);
+        // console.log(result);
 
         return result;
     }
