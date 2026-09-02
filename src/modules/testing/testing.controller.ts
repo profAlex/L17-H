@@ -41,44 +41,40 @@ export class TestingController {
     // создает индексы только при инициализации приложения. После .drop() индексы
     // не пересоздаются, из-за чего логика уникальности сессий, поиска по IP
     // или автоочистки ломается.
+
     @Delete('all-data')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteAll() {
-        // const collections = await this.databaseConnection.listCollections();
-        //
-        // const promises = collections.map((collection) =>
-        //     this.databaseConnection
-        //         .collection(collection.name)
-        //         .deleteMany({}) // ✅ Безопасно очищает документы, СОХРАНЯЯ индексы и структуру!
-        // );
-        //
-        // await Promise.all(promises);
 
-        // Возвращать ничего не нужно, так как стоит @HttpCode(HttpStatus.NO_CONTENT)
-
-        // 1. Получаем список всех существующих таблиц в схеме 'public'
-        const tables: Array<{ tablename: string }> = await this.dataSource
+        // выдергиваем список всех существующих таблиц в схеме 'public'
+        const availableTables: Array<{ tablename: string }> = await this.dataSource
             .query(`
-            SELECT tablename
-            FROM pg_tables
-            WHERE schemaname = 'public'
-              AND tablename NOT LIKE 'spatial_%'; -- исключаем системные таблицы, если есть
-        `);
+                SELECT tablename
+                FROM pg_tables
+                WHERE schemaname = 'public';
+            `);
 
-        if (tables.length === 0) return;
+        if (availableTables.length === 0) {
+            console.warn(
+                `Database contain no tables with schemaname = 'public' `,
+            );
+            return;
+        }
 
-        // 2. Формируем строку вида: "user_sessions", "users", "posts"
-        const tableNames = tables.map((t) => `"${t.tablename}"`).join(', ');
+        //  строку вида: "user_sessions", "users"
+        const relatedTables = availableTables.map((table) => {return `"${table.tablename}"`}).join(',');
 
-        // 3. Выполняем очистку всех найденных таблиц
+        // чистим через TRUNCATE
         await this.dataSource.query(`
-    TRUNCATE TABLE ${tableNames} RESTART IDENTITY CASCADE;
-  `);
+            TRUNCATE TABLE ${relatedTables} RESTART IDENTITY CASCADE;
+        `);
+        // RESTART IDENTITY - нужен для того чтобы serial поля сбросили счетчики
+        // CASCADE - нужен чтобы не высчитывать порядок очистки таблиц в коде (сначала дочерние а потом  родительские), чтобы параллельно автоматически очищать и родительские и зависящие дочерние таблицы
 
-        console.log(
-            `Successfully cleared ${tables.length} tables: ${tableNames} `,
+        console.warn(
+            `Successfully cleared ${availableTables.length} tables: ${relatedTables} `,
         );
 
-        return tableNames;
+        // return relatedTables;
     }
 }

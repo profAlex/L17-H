@@ -55,7 +55,6 @@ export class User {
     // @Prop(NameSchema) this variant from doc doesn't make validation for inner object
     @Prop({ type: NameSchema })
     name!: Name;
-
     /**
      * Creation timestamp
      * Explicitly defined despite timestamps: true
