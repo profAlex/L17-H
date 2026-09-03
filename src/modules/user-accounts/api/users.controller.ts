@@ -23,6 +23,7 @@ import { BasicAuthGuard } from '../../authorisation/guards/basic/basic.auth-guar
 import { IdParamInputDto } from './input-dto/id-param.input-dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetAllUsers } from '../application/usecases/get-all-users.usecase';
+import { CreateUser } from '../application/usecases/create-user.usecase';
 
 @ApiTags('Users endpoint')
 @Controller('/sa/users')
@@ -52,7 +53,6 @@ export class UsersController {
     async getAllUsers(
         @Query() query: GetUsersQueryParams,
     ): Promise<PaginatedViewDto<UserViewDto>> {
-        // return this.usersQueryRepository.getAllUsers(query);
         const result = await this.queryBus.execute<GetAllUsers>(
             new GetAllUsers(query),
         );
@@ -60,12 +60,16 @@ export class UsersController {
         return result;
     }
 
-
+    // Adds new user to the system
     @HttpCode(HttpStatus.CREATED)
     @UseGuards(BasicAuthGuard)
     @Post()
     async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
-        const userId = await this.usersService.createUser(body);
+        // const userId = await this.usersService.createUser(body);
+
+        const userId = await this.commandBus.execute<CreateUser>(
+            new CreateUser(body),
+        );
 
         return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
     }

@@ -124,13 +124,18 @@ export class UsersQueryRepository {
     async getAllUsers(
         query: GetUsersQueryParams,
     ): Promise<PaginatedViewDto<UserViewDto>> {
+        // массив SQL услоий для уточнения поиска WHERE
         const whereConditions: string[] = ['deleted_at IS NULL'];
+        // массив для передачи значений в плейсхолдеры $1, $2 и далее
         const queryParams: any[] = [];
+        // счетчик для нумерации, изменяется в зависимости от наличия переданных query параметров
         let paramIndex = 1;
 
-        // 1. Формируем условия $or для поиска по login или email (ILIKE = case-insensitive)
+        // условия $or для поиска по login или email (ILIKE = case-insensitive), присоединяются к whereConditions
         const orConditions: string[] = [];
 
+        // таким образом обеспечивается защита от инъекций - первый массив содержит цифру, которая автоматически
+        // инкрементится, второй массив содержит фактичесое значение квери-паарметра
         if (query.searchLoginTerm) {
             orConditions.push(`login ILIKE $${paramIndex}`);
             queryParams.push(`%${query.searchLoginTerm}%`);
@@ -143,13 +148,18 @@ export class UsersQueryRepository {
             paramIndex++;
         }
 
+        // объединяем все квери параметры в общую OR строку и засовываем ее в массив к WHERE
+        // внимание! скобоки очень важны для правильной последовательности вычисления логических операторов
         if (orConditions.length > 0) {
             whereConditions.push(`(${orConditions.join(' OR ')})`);
         }
 
+        // финальный шаг - теперь WHERE массив соединяем в общую AND строку с предыдущей
         const whereClause = whereConditions.join(' AND ');
 
-        // 2. Безопасная маппинг-проверка колонки для сортировки (Защита от SQL-инъекций)
+        // вспомогательная мапа для защиты от инъекций при выборе ORDER BY (сортировка)
+        // мы тут задаем все возможные корректные допустимые варианты, которые могут существуют по ТЗ
+        // все несоответствиующие т.е. потенциальные инъекции просто не выберутся, т.к. не будут существовать в массиве
         const allowedSortColumns: Record<string, string> = {
             createdAt: 'created_at',
             login: 'login',
@@ -157,13 +167,13 @@ export class UsersQueryRepository {
         };
 
         const sortByColumn = allowedSortColumns[query.sortBy] || 'created_at';
-        const sortDirection =
-            query.sortDirection?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        const sortDirection = query.sortDirection && query.sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
-        // 3. Формируем SQL-запросы для получения элементов и общего количества
+        // параметры для условий LIMIT и OFFSET
         const offset = query.calculateSkip();
         const limit = query.pageSize;
 
+        // aормируем SQL-запросы для получения элементов и общего количества
         const itemsQuery = `
             SELECT id, login, email, created_at
             FROM users
@@ -179,7 +189,7 @@ export class UsersQueryRepository {
             WHERE ${whereClause}
         `;
 
-        // 4. Параллельно выполняем оба запроса к базе данных
+        // параллельно выполняем оба запроса к базе данных
         const [usersRows, countResult] = await Promise.all([
             this.dataSource.query<UserDbRow[]>(itemsQuery, [
                 ...queryParams,

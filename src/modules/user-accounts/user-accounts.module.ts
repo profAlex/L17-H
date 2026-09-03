@@ -8,6 +8,7 @@ import {UsersQueryRepository} from './infrastructure/query/users.query-repositor
 import {UsersExternalQueryRepository} from './infrastructure/external-query/users.external-query-repository';
 import {UsersExternalService} from './application/users.external-service';
 import {CryptoService} from "../../core/bcrypt/bcrypt.service";
+import { GetAllUsersQueryHandler } from './application/usecases/get-all-users.usecase';
 
 @Module({
     imports: [
@@ -15,6 +16,7 @@ import {CryptoService} from "../../core/bcrypt/bcrypt.service";
     ],
     controllers: [UsersController],
     providers: [
+        GetAllUsersQueryHandler,
         UsersService,
         UsersCommandRepository,
         UsersQueryRepository,

@@ -14,7 +14,7 @@ export interface EmailConfirmationInfo {
     expirationDate: Date | null;
 }
 
-export class User {
+export class SQLUser {
     public id: string;
     public login: string;
     public passwordHash: string;
@@ -30,8 +30,8 @@ export class User {
 
     private constructor() {}
 
-    static createInstance(dto: CreateUserDomainDto): User {
-        const user = new User();
+    static createInstance(dto: CreateUserDomainDto): SQLUser {
+        const user = new SQLUser();
 
         user.id = UUIDGeneratorUtil.generateUUID();
         user.login = dto.login;
@@ -60,8 +60,8 @@ export class User {
         return user;
     }
 
-    static reconstruct(rawDataFromDb: any): User {
-        const user = new User();
+    static reconstruct(rawDataFromDb: any): SQLUser {
+        const user = new SQLUser();
 
         user.id = rawDataFromDb.id;
         user.login = rawDataFromDb.login;

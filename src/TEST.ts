@@ -1,4 +1,118 @@
 
+// *****************************************************************************************
+// *****************************************************************************************
+// *****************************************************************************************
+// *****************************************************************************************
+
+//
+// import { GetUsersQueryParams } from './modules/user-accounts/api/input-dto/get-users-query-params.input-dto';
+// import { UserViewDto } from './modules/user-accounts/api/view-dto/users.view-dto';
+// import { PaginatedViewDto } from './core/dto/base.paginated.view-dto';
+//
+// interface UserDbRow {
+//     id: string;
+//     login: string;
+//     email: string;
+//     created_at: Date;
+// }
+//
+// function GetAllUsers(
+//     query: GetUsersQueryParams,
+// ): Promise<PaginatedViewDto<UserViewDto>> {
+//     const whereConditions: string[] = [`deleted_at IS NULL`];
+//     const queryParams: any[] = [];
+//     let paramIndex = 1;
+//
+//     const orConditions: string[] = [];
+//
+//     if (query.searchEmailTerm) {
+//         orConditions.push(`email ILIKE $${paramIndex}`);
+//         queryParams.push(`%${query.searchEmailTerm}%`);
+//         paramIndex++;
+//     }
+//
+//     if (query.searchLoginTerm) {
+//         orConditions.push(`login ILIKE $${paramIndex}`);
+//         queryParams.push(`%${query.searchLoginTerm}%`);
+//         paramIndex++;
+//     }
+//
+//     // объединяем все квери параметры в общую OR строку
+//     if (orConditions.length > 0) {
+//         whereConditions.push(`(${orConditions.join(' OR ')})`);
+//     }
+//
+//     const whereClause = whereConditions.join(' AND ');
+//
+//     const allowedSortColumns: Record<string, string> = {
+//         createdAt: 'created_at',
+//         email: 'email',
+//         login: 'login',
+//     };
+//
+//     const sortByColumn = allowedSortColumns[query.sortBy] || 'created_at';
+//     const sortDirection =
+//         query.sortDirection && query.sortDirection.toUpperCase() === 'ASC'
+//             ? 'ASC'
+//             : 'DESC';
+//
+//     const limit = query.pageSize;
+//     const offset = query.calculateSkip();
+//
+//     const itemsQuery = `
+//         SELECT id, login, email, created_at
+//         FROM users
+//         WHERE ${whereClause}
+//         ORDER BY ${sortByColumn} ${sortDirection}
+//         LIMIT $${paramIndex}
+//         OFFSET $${paramIndex + 1}
+//     `;
+//
+//     const countQuery = `
+//         SELECT COUNT(*) ::int AS "totalCount"
+//         FROM users
+//         WHERE ${whereClause}
+//     `;
+//
+//     const [userRows, totalCount] = await Promise.all([
+//         // @ts-ignore
+//         this.dataSource.query<UserDbRow[]>(itemsQuery, [
+//             ...queryParams,
+//             limit,
+//             offset,
+//         ]),
+//         // @ts-ignore
+//         this.dataSource.query<{ totalCount: number }[]>(
+//             countQuery,
+//             queryParams,
+//         ),
+//     ]);
+//
+//     const items = userRows.map((row: UserDbRow) => ({
+//         id: row.id,
+//             login: row.login,
+//             email: row.email,
+//             createdAt: row.created_at.toISOString(),
+//     }));
+//
+//     const result = PaginatedViewDto.mapToView({
+//         items,
+//         totalCount,
+//         page: query.pageNumber,
+//         size: query.pageSize,
+//     });
+//
+//     return result;
+//
+// }
+
+
+
+
+// *****************************************************************************************
+// *****************************************************************************************
+// *****************************************************************************************
+// *****************************************************************************************
 
 
 // import { GetPostsQueryParams } from './modules/bloggers-platform/posts/api/input-dto/get-posts-query-params.input-dto';
