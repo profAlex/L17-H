@@ -32,22 +32,22 @@ export class UsersQueryRepository {
         private readonly dataSource: DataSource,
     ) {}
 
-    async getByIdOrNotFoundFail(id: string): Promise<UserViewDto> {
-        const user = await this.UserModel.findOne({
-            _id: id,
-            deletedAt: null,
-        });
-
-        if (!user) {
-            // throw new NotFoundException('user not found');
-            throw new DomainException({
-                code: DomainExceptionCode.UserNotFound,
-                message: 'User not found',
-            });
-        }
-
-        return UserViewDto.mapToView(user);
-    }
+    // async getByIdOrNotFoundFail(id: string): Promise<UserViewDto> {
+    //     const user = await this.UserModel.findOne({
+    //         _id: id,
+    //         deletedAt: null,
+    //     });
+    //
+    //     if (!user) {
+    //         // throw new NotFoundException('user not found');
+    //         throw new DomainException({
+    //             code: DomainExceptionCode.UserNotFound,
+    //             message: 'User not found',
+    //         });
+    //     }
+    //
+    //     return UserViewDto.mapToView(user);
+    // }
 
     async SQLgetByIdOrNotFoundFail(id: string): Promise<SQLUserViewDto> {
         const [user] = await this.dataSource.query<UserDbRow[]>(`

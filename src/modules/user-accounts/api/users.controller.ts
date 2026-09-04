@@ -25,6 +25,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetAllUsers } from '../application/usecases/get-all-users.usecase';
 import { CreateUser } from '../application/usecases/create-user.usecase';
 import { GetUserByIdOrNotFoundFail } from '../application/usecases/get-user-by-id.usecase';
+import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 
 @ApiTags('Users endpoint')
 @Controller('/sa/users')
@@ -75,7 +76,9 @@ export class UsersController {
     @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
     async deleteUser(@Param() idParam: IdParamInputDto): Promise<void> {
-        return this.usersService.deleteUser(idParam.id);
+        return await this.commandBus.execute<void>(
+            new DeleteUserCommand(idParam.id),
+        );
     }
 
 

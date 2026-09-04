@@ -10,6 +10,8 @@ import {UsersExternalService} from './application/users.external-service';
 import {CryptoService} from "../../core/bcrypt/bcrypt.service";
 import { GetAllUsersQueryHandler } from './application/usecases/get-all-users.usecase';
 import { GetUserByIdOrNotFoundHandler } from './application/usecases/get-user-by-id.usecase';
+import { CreateUserHandler } from './application/usecases/create-user.usecase';
+import { DeleteUserHandler } from './application/usecases/delete-user.usecase';
 
 @Module({
     imports: [
@@ -17,7 +19,9 @@ import { GetUserByIdOrNotFoundHandler } from './application/usecases/get-user-by
     ],
     controllers: [UsersController],
     providers: [
+        DeleteUserHandler,
         GetUserByIdOrNotFoundHandler,
+        CreateUserHandler,
         GetAllUsersQueryHandler,
         UsersService,
         UsersCommandRepository,
