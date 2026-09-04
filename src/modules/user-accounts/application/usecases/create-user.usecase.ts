@@ -9,7 +9,7 @@ import { SQLUser } from '../../domain/sql-user.entitry';
 
 export class CreateUser extends Command<string> {
     constructor(
-        public readonly dto: CreateUserDto,
+        public readonly userData: CreateUserDto,
         // public readonly req: Request,
     ) {
         super();
@@ -23,8 +23,9 @@ export class CreateUserHandler implements ICommandHandler<CreateUser> {
         private cryptoService: CryptoService,
     ) {}
 
-    async execute({dto}: CreateUser): Promise<string> {
-        const passwordHash = await this.cryptoService.generateHash(dto.password);
+    async execute(command: CreateUser): Promise<string> {
+        const {userData} = command;
+        const passwordHash = await this.cryptoService.generateHash(userData.password);
 
         if (!passwordHash) {
             throw new InternalServerErrorException("Couldn't generate hash");
@@ -34,14 +35,14 @@ export class CreateUserHandler implements ICommandHandler<CreateUser> {
 
         // 1. Создаем чистую доменную сущность (без Mongoose и без DI)
         const newUser = SQLUser.createInstance({
-            login: dto.login,
-            email: dto.email,
+            login: userData.login,
+            email: userData.email,
             passwordHash: passwordHash,
             confirmationCode: confirmationCode,
         });
 
         // 2. Сохраняем в PostgreSQL через Command-репозиторий
-        await this.usersCommandRepository.save(newUser);
+        await this.usersCommandRepository.SQLsave(newUser);
 
         // 3. Возвращаем UUID созданного пользователя
         return newUser.id;

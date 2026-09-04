@@ -1,5 +1,6 @@
 import { User, UserDocument } from '../../domain/user.entity';
 import { Types } from 'mongoose';
+import { SQLUser } from '../../domain/sql-user.entitry';
 
 // export class UserViewDto {
 //     id: string;
@@ -20,6 +21,13 @@ import { Types } from 'mongoose';
 //         return dto;
 //     }
 // }
+
+interface UserDbRow {
+    id: string;
+    login: string;
+    email: string;
+    created_at: Date;
+}
 
 export class UserViewDto {
     id: string;
@@ -42,5 +50,45 @@ export class UserViewDto {
 
     static mapToView(user: User & { _id: Types.ObjectId }): UserViewDto {
         return new UserViewDto(user);
+    }
+
+}
+
+
+export class SQLUserViewDto {
+    id: string;
+    login: string;
+    email: string;
+    createdAt: string;
+
+    private constructor(data: { id: string; login: string; email: string; createdAt: string }) {
+        this.id = data.id;
+        this.login = data.login;
+        this.email = data.email;
+        this.createdAt = data.createdAt;
+    }
+
+    // Для сырых строк из PostgreSQL (snake_case)
+    static mapFromDbRow(row: UserDbRow): SQLUserViewDto {
+        return new SQLUserViewDto({
+            id: row.id,
+            login: row.login,
+            email: row.email,
+            createdAt: row.created_at instanceof Date
+                ? row.created_at.toISOString()
+                : new Date(row.created_at).toISOString(),
+        });
+    }
+
+    // Для доменных объектов SQLUser (camelCase)
+    static mapToView(user: SQLUser): SQLUserViewDto {
+        return new SQLUserViewDto({
+            id: user.id,
+            login: user.login,
+            email: user.email,
+            createdAt: user.createdAt instanceof Date
+                ? user.createdAt.toISOString()
+                : new Date(user.createdAt).toISOString(),
+        });
     }
 }

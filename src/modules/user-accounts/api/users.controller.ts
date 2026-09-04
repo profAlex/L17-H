@@ -12,7 +12,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { UsersQueryRepository } from '../infrastructure/query/users.query-repository';
-import { UserViewDto } from './view-dto/users.view-dto';
+import { SQLUserViewDto, UserViewDto } from './view-dto/users.view-dto';
 import { UsersService } from '../application/users.service';
 import { CreateUserInputDto } from './input-dto/users.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
@@ -24,6 +24,7 @@ import { IdParamInputDto } from './input-dto/id-param.input-dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetAllUsers } from '../application/usecases/get-all-users.usecase';
 import { CreateUser } from '../application/usecases/create-user.usecase';
+import { GetUserByIdOrNotFoundFail } from '../application/usecases/get-user-by-id.usecase';
 
 @ApiTags('Users endpoint')
 @Controller('/sa/users')
@@ -37,14 +38,6 @@ export class UsersController {
         console.log('UsersController created');
     }
 
-    // @UseGuards(BasicAuthGuard)
-    // @ApiParam({ name: 'id' }) //для сваггера
-    // @Get(':id') //users/232342-sdfssdf-23234323
-    // async getById(@Param() idParam: IdParamInputDto): Promise<UserViewDto> {
-    //     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
-    //     // промис зарезолвится и затем NestJS вернёт результат клиенту
-    //     return this.usersQueryRepository.getByIdOrNotFoundFail(idParam.id);
-    // }
 
     // Returns all users
     @UseGuards(BasicAuthGuard)
@@ -67,12 +60,34 @@ export class UsersController {
     async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
         // const userId = await this.usersService.createUser(body);
 
-        const userId = await this.commandBus.execute<CreateUser>(
+        const userId = await this.commandBus.execute<string>(
             new CreateUser(body),
         );
 
-        return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
+        return await this.queryBus.execute<SQLUserViewDto>(
+            new GetUserByIdOrNotFoundFail(userId),
+        );
     }
+
+    // Deletes user specified by id
+    @UseGuards(BasicAuthGuard)
+    @ApiParam({ name: 'id' }) //для сваггера
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Delete(':id')
+    async deleteUser(@Param() idParam: IdParamInputDto): Promise<void> {
+        return this.usersService.deleteUser(idParam.id);
+    }
+
+
+    // @UseGuards(BasicAuthGuard)
+    // @ApiParam({ name: 'id' }) //для сваггера
+    // @Get(':id') //users/232342-sdfssdf-23234323
+    // async getById(@Param() idParam: IdParamInputDto): Promise<UserViewDto> {
+    //     // можем и чаще так и делаем возвращать Promise из action. Сам NestJS будет дожидаться, когда
+    //     // промис зарезолвится и затем NestJS вернёт результат клиенту
+    //     return this.usersQueryRepository.getByIdOrNotFoundFail(idParam.id);
+    // }
+
 
     // @UseGuards(BasicAuthGuard)
     // @Put(':id')
@@ -84,13 +99,4 @@ export class UsersController {
     //
     //     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
     // }
-
-    @UseGuards(BasicAuthGuard)
-    @ApiParam({ name: 'id' }) //для сваггера
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @Delete(':id')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async deleteUser(@Param() idParam: IdParamInputDto): Promise<void> {
-        return this.usersService.deleteUser(idParam.id);
-    }
 }

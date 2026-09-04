@@ -1,6 +1,6 @@
 import { User, UserDocument, UserModelType } from '../../domain/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { UserViewDto } from '../../api/view-dto/users.view-dto';
+import { SQLUserViewDto, UserViewDto } from '../../api/view-dto/users.view-dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 // import { FilterQuery } from 'mongoose';
@@ -47,6 +47,23 @@ export class UsersQueryRepository {
         }
 
         return UserViewDto.mapToView(user);
+    }
+
+    async SQLgetByIdOrNotFoundFail(id: string): Promise<SQLUserViewDto> {
+        const [user] = await this.dataSource.query<UserDbRow[]>(`
+            SELECT id, login, email, created_at
+            FROM users
+            WHERE id = $1 AND deleted_at IS NULL`,[id]);
+
+        if (!user) {
+            // throw new NotFoundException('user not found');
+            throw new DomainException({
+                code: DomainExceptionCode.UserNotFound,
+                message: 'User not found',
+            });
+        }
+
+        return SQLUserViewDto.mapFromDbRow(user);
     }
 
     async getMeByIdOrNotFoundFail(id: string): Promise<MeViewDto> {
@@ -204,13 +221,18 @@ export class UsersQueryRepository {
 
         const totalCount = countResult[0]?.totalCount ?? 0;
 
-        // 5. Превращаем плоские SQL-строки в DTO
-        const items = usersRows.map((row) => ({
-            id: row.id,
-            login: row.login,
-            email: row.email,
-            createdAt: row.created_at.toISOString(),
-        }));
+        // маппим плоские SQL-строки в DTO
+        // const items = usersRows.map((row) => ({
+        //     id: row.id,
+        //     login: row.login,
+        //     email: row.email,
+        //     createdAt: row.created_at instanceof Date
+        //         ? row.created_at.toISOString()
+        //         : new Date(row.created_at).toISOString(),
+        // }));
+
+        // маппим плоские SQL-строки в DTO
+        const items = usersRows.map(SQLUserViewDto.mapFromDbRow);
 
         return PaginatedViewDto.mapToView({
             items,

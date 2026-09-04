@@ -19,15 +19,15 @@ export class UsersCommandRepository {
     });
   }
 
-  // async save(user: UserDocument) {
-  //   // console.log("<----------------TEST HERE 5");
-  //
-  //   await user.save();
-  //   // console.log("<----------------TEST HERE 6");
-  //
-  // }
+  async save(user: UserDocument) {
+    // console.log("<----------------TEST HERE 5");
 
-  async save(user: SQLUser): Promise<void> {
+    await user.save();
+    // console.log("<----------------TEST HERE 6");
+
+  }
+
+  async SQLsave(user: SQLUser): Promise<void> {
     const query = `
       INSERT INTO users (
         id,
