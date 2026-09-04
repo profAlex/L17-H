@@ -36,6 +36,10 @@ import { Logout } from '../application/usecases/logout.usecase';
 import { CustomThrottlerGuard } from '../guards/custom-throttler/custom-throttler.guard';
 import { TestQuery } from '../application/usecases/test-query.usecase';
 import { TestCreateDb } from '../application/usecases/test-create-db.usecase';
+import { PasswordRecoveryCommand } from '../application/usecases/password-recovery.usecase';
+import { NewPasswordCommand } from '../application/usecases/new-password.usecase';
+import { ConfirmRegistrationCommand } from '../application/usecases/registration-confirmation.usecase';
+import { RegisterUserCommand } from '../application/usecases/registration.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -49,36 +53,27 @@ export class AuthController {
 
     @HttpCode(HttpStatus.OK)
     @Get('testCreateDb')
-    async testCreateDb(
-        //@Body() body: UserLoginInputDto,
-    ): Promise<
-        void
-    > {
+    async testCreateDb() //@Body() body: UserLoginInputDto,
+    : Promise<void> {
         const result: string = await this.commandBus.execute<TestCreateDb>(
             new TestCreateDb(),
         );
 
-    //     CREATE TABLE "Profiles" (
-    //         "UserId" integer PRIMARY KEY,
-    //         "Hobby" varchar,
-    //         "Education" varchar
-    // );
-
-
+        //     CREATE TABLE "Profiles" (
+        //         "UserId" integer PRIMARY KEY,
+        //         "Hobby" varchar,
+        //         "Education" varchar
+        // );
 
         console.log(result);
 
         return;
     }
 
-
     @HttpCode(HttpStatus.OK)
     @Get('testQuery')
-    async testQuery(
-        //@Body() body: UserLoginInputDto,
-    ): Promise<
-        string
-    > {
+    async testQuery() //@Body() body: UserLoginInputDto,
+    : Promise<string> {
         const result: string = await this.queryBus.execute<TestQuery>(
             new TestQuery(),
         );
@@ -166,7 +161,7 @@ export class AuthController {
     async passwordRecovery(
         @Body() body: PasswordRecoveryInputDto,
     ): Promise<void> {
-        return this.authService.passwordRecoveryByEmail(body.email);
+        return this.commandBus.execute(new PasswordRecoveryCommand(body.email));
     }
 
     // Confirm Password recovery
@@ -175,9 +170,8 @@ export class AuthController {
     // @UseGuards(CustomThrottlerGuard)
     @Post('new-password')
     async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
-        return this.authService.applyNewPassword(
-            body.newPassword,
-            body.recoveryCode,
+        return this.commandBus.execute(
+            new NewPasswordCommand(body.newPassword, body.recoveryCode),
         );
     }
 
@@ -189,7 +183,9 @@ export class AuthController {
     async registrationConfirmation(
         @Body() body: RegistrationConfirmationInputDto,
     ): Promise<void> {
-        return this.authService.confirmRegistration(body.code);
+        return this.commandBus.execute(
+            new ConfirmRegistrationCommand(body.code),
+        );
     }
 
     // Registration in the system. Email with confirmation code will be send to passed email address
@@ -198,10 +194,8 @@ export class AuthController {
     @UseGuards(CustomThrottlerGuard)
     @Post('registration')
     async registration(@Body() body: RegisterNewUserDto): Promise<void> {
-        return this.authService.registerAttempt(
-            body.login,
-            body.password,
-            body.email,
+        return this.commandBus.execute(
+            new RegisterUserCommand(body.login, body.password, body.email),
         );
     }
 

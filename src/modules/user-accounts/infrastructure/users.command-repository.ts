@@ -111,4 +111,133 @@ export class UsersCommandRepository {
         // Воссоздаем доменный объект из строки БД
         return SQLUser.reconstruct(userRow);
     }
+
+
+    async SQLfindConfirmedUserByEmail(email: string): Promise<SQLUser | null> {
+        const query = `
+            SELECT 
+                "id",
+                "login",
+                "email",
+                "password_hash",
+                "created_at",
+                "is_confirmed",
+                "confirmation_code",
+                "confirmation_code_expiration_date",
+                "recovery_code",
+                "recovery_code_expiration_date"
+            FROM public."users"
+            WHERE "email" = $1 AND "is_confirmed" = true;
+        `;
+
+        const [userRow] = await this.dataSource.query(query, [email]);
+
+        if (!userRow) {
+            return null;
+        }
+
+        return SQLUser.reconstruct(userRow);
+    }
+
+
+    async SQLfindUserByRecoveryCode(recoveryCode: string): Promise<SQLUser | null> {
+        const query = `
+            SELECT 
+                "id",
+                "login",
+                "email",
+                "password_hash",
+                "created_at",
+                "is_confirmed",
+                "confirmation_code",
+                "confirmation_code_expiration_date",
+                "recovery_code",
+                "recovery_code_expiration_date",
+                "deleted_at"
+            FROM public."users"
+            WHERE "recovery_code" = $1
+              AND "recovery_code_expiration_date" >= NOW()
+              AND "deleted_at" IS NULL;
+        `;
+
+        const [userRow] = await this.dataSource.query(query, [recoveryCode]);
+
+        if (!userRow) {
+            return null;
+        }
+
+        return SQLUser.reconstruct(userRow);
+    }
+
+
+    async SQLfindUserByConfirmationCode(
+        confirmationCode: string,
+    ): Promise<SQLUser | null> {
+        const query = `
+            SELECT 
+                "id",
+                "login",
+                "email",
+                "password_hash",
+                "created_at",
+                "is_confirmed",
+                "confirmation_code",
+                "confirmation_code_expiration_date",
+                "recovery_code",
+                "recovery_code_expiration_date",
+                "deleted_at"
+            FROM public."users"
+            WHERE "confirmation_code" = $1
+              AND "confirmation_code_expiration_date" >= NOW()
+              AND "deleted_at" IS NULL;
+        `;
+
+        const [userRow] = await this.dataSource.query(query, [confirmationCode]);
+
+        if (!userRow) {
+            return null;
+        }
+
+        return SQLUser.reconstruct(userRow);
+    }
+
+
+    async SQLcheckIfUserExists(
+        login: string,
+        email: string,
+    ): Promise<'login' | 'email' | null> {
+        const checkLoginQuery = `
+            SELECT EXISTS (
+                SELECT 1 
+                FROM public."users" 
+                WHERE "login" = $1 AND "deleted_at" IS NULL
+            ) as "exists";
+        `;
+        const [loginResult] = await this.dataSource.query<{ exists: boolean }[]>(
+            checkLoginQuery,
+            [login],
+        );
+
+        if (loginResult?.exists) {
+            return 'login';
+        }
+
+        const checkEmailQuery = `
+            SELECT EXISTS (
+                SELECT 1 
+                FROM public."users" 
+                WHERE "email" = $1 AND "deleted_at" IS NULL
+            ) as "exists";
+        `;
+        const [emailResult] = await this.dataSource.query<{ exists: boolean }[]>(
+            checkEmailQuery,
+            [email],
+        );
+
+        if (emailResult?.exists) {
+            return 'email';
+        }
+
+        return null;
+    }
 }

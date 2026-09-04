@@ -28,6 +28,10 @@ import { JwtRefreshAuthGuard } from './guards/refresh-token/refresh-token.auth-g
 import { JwtRefreshTokenStrategy } from './guards/refresh-token/refresh-token.strategy';
 import { TestQueryHandler } from './application/usecases/test-query.usecase';
 import { TestCreateDbHandler } from './application/usecases/test-create-db.usecase';
+import { PasswordRecoveryHandler } from './application/usecases/password-recovery.usecase';
+import { NewPasswordHandler } from './application/usecases/new-password.usecase';
+import { ConfirmRegistrationHandler } from './application/usecases/registration-confirmation.usecase';
+import { RegisterUserHandler } from './application/usecases/registration.usecase';
 
 @Module({
     imports: [
@@ -62,6 +66,10 @@ import { TestCreateDbHandler } from './application/usecases/test-create-db.useca
         // SecurityDevicesController
         ],
     providers: [
+        RegisterUserHandler,
+        ConfirmRegistrationHandler,
+        NewPasswordHandler,
+        PasswordRecoveryHandler,
         TestCreateDbHandler,
         TestQueryHandler,
         LoginUserHandler,
