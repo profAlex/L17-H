@@ -38,7 +38,7 @@ export class Session {
     }
 
     static createInstance(
-        sessionPayload: CreateSessionDomainPayload& {
+        sessionPayload: CreateSessionDomainPayload & {
             issuedAt: Date;
             expiresAt: Date;
             deviceUUID: string,

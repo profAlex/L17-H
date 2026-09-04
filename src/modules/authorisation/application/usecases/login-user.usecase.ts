@@ -5,6 +5,7 @@ import { SessionsCommandRepository } from '../../infrastructure/session/sessions
 import { JwtTokenProvider } from '../jwt-token-provider/jwt-token-provider.service';
 import { Response, Request } from 'express';
 import { UUIDGeneratorUtil } from '../../../../core/uuid-generation/uuid.service';
+import { SQLUserSession } from '../../domain/sql-session.entity';
 
 export type TokensPair = {
     accessToken: string;
@@ -45,25 +46,19 @@ export class LoginUserHandler implements ICommandHandler<LoginUser> {
             userId: userId,
             deviceId: deviceId,
         });
-        // // 1. Сначала рассчитываем временную метку для токенов и сессии
-        // // (или подготавливаем пары дат из JwtTokenProvider)
-        // const tokensPair = await this.jwtTokenProvider.generatePairOfTokens({
-        //     userId: userId,
-        //     deviceUUID: deviceUUID,
-        // });
 
         // создаем сессию
-        const session = this.SessionModel.createInstance({
+        const session = SQLUserSession.createInstance({
             userId: userId,
             deviceName: deviceName,
             deviceIp: deviceIp,
             issuedAt: tokensPair.issuedAt,
             expiresAt: tokensPair.expiresAt,
-            deviceUUID: deviceId,
+            deviceId: deviceId,
         });
 
         // сохраняем
-        await this.sessionsCommandRepository.save(session);
+        await this.sessionsCommandRepository.SQLsave(session);
 
 
         return {

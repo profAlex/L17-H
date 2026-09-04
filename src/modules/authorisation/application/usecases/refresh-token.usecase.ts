@@ -59,7 +59,7 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshToken> {
 
         // находим сессию
         const sessionDocument =
-            await this.sessionsCommandRepository.findSessionBySessionId(
+            await this.sessionsCommandRepository.SQLfindSessionBySessionId(
                 sessionId,
             );
 
@@ -78,12 +78,11 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshToken> {
 
         // внутри генератора токенов было рассчиатно и возвращено обновленные время создания и время жизни токена, которые мы запишем в сессию
         sessionDocument.updateSession({
-            issuedAt: tokensPair.issuedAt,
-            expiresAt: tokensPair.expiresAt,
+            issuedAt: tokensPair.issuedAt, expiresAt: tokensPair.expiresAt,
         });
 
         // сохраняем
-        await this.sessionsCommandRepository.save(sessionDocument);
+        await this.sessionsCommandRepository.SQLsave(sessionDocument);
 
         return {
             accessToken: tokensPair.accessToken,

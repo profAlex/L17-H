@@ -8,6 +8,7 @@ import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { SQLUserSession } from '../../domain/sql-session.entity';
 
 export type SessionParameters = {
     userId: string;
@@ -30,6 +31,41 @@ export class SessionsCommandRepository {
 
     async save(session: SessionDocument): Promise<void> {
         await session.save();
+    }
+
+    async SQLsave(session: SQLUserSession): Promise<void> {
+        const query = `
+        INSERT INTO public."user_sessions" (
+            "id",
+            "user_id",
+            "device_uuid",
+            "device_name",
+            "device_ip",
+            "issued_at",
+            "expires_at",
+            "created_at",
+            "deleted_at"
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        ON CONFLICT ("id") DO UPDATE SET
+            "issued_at" = EXCLUDED."issued_at",
+            "expires_at" = EXCLUDED."expires_at",
+            "deleted_at" = EXCLUDED."deleted_at";
+    `;
+
+        const parameters = [
+            session.id,
+            session.userId,
+            session.deviceId,
+            session.deviceName,
+            session.deviceIp,
+            session.issuedAt,
+            session.expiresAt,
+            session.createdAt,
+            session.deletedAt,
+        ];
+
+        await this.dataSource.query(query, parameters);
     }
 
     async toTestCreateDb() {
@@ -97,6 +133,32 @@ export class SessionsCommandRepository {
         // но им не является. Вызов .exec() превращает его в полноценный нативный JavaScript Promise.
         // Это дает более чистые и понятные стек-трейсы ошибок (stack traces), если база данных начнет сбоить,
         // и исключает странные баги с типизацией в некоторых версиях TypeScript.
+    }
+
+
+    async SQLfindSessionBySessionId(sessionId: string): Promise<SQLUserSession | null> {
+        const query = `
+            SELECT 
+                "id",
+                "user_id",
+                "device_uuid",
+                "device_name",
+                "device_ip",
+                "issued_at",
+                "expires_at",
+                "created_at",
+                "deleted_at"
+            FROM public."user_sessions"
+            WHERE "id" = $1 AND "deleted_at" IS NULL;
+        `;
+
+        const [sessionRow] = await this.dataSource.query(query, [sessionId]);
+
+        if (!sessionRow) {
+            return null;
+        }
+
+        return SQLUserSession.reconstruct(sessionRow);
     }
 
     async findSessionByDeviceId(
