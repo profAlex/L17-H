@@ -12,7 +12,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
 import { UserAuthInternalDto } from '../../../authorisation/dto/internal-dto/users.auth-internal-dto';
-import { MeViewDto } from '../../../authorisation/api/view-dto/me.view-dto';
+import { MeViewDto, SQLMeViewDto } from '../../../authorisation/api/view-dto/me.view-dto';
 import { DomainException } from '../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
 import { DataSource } from 'typeorm';
@@ -81,6 +81,28 @@ export class UsersQueryRepository {
         }
 
         return MeViewDto.mapToView(user);
+    }
+
+    async SQLgetMeByIdOrNotFoundFail(id: string): Promise<SQLMeViewDto> {
+
+        const meQuery = `
+        SELECT id AS userId, login, email
+        FROM users
+        WHERE id = $1 AND deleted_at IS NULL;
+        `
+
+        const [userRow] = await this.dataSource.query<{userId:string, login:string, email:string}[]>(meQuery, [id]);
+
+
+        if (!userRow) {
+            // throw new NotFoundException('user not found');
+            throw new DomainException({
+                code: DomainExceptionCode.UserNotFound,
+                message: 'User not found',
+            });
+        }
+
+        return SQLMeViewDto.mapToView(userRow);
     }
 
     // async getAllUsers(
@@ -342,4 +364,5 @@ export class UsersQueryRepository {
             ],
         });
     }
+
 }

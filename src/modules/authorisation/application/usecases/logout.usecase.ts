@@ -24,7 +24,7 @@ export class LogoutHandler implements ICommandHandler<Logout> {
     async execute({
                       sessionId
     }: Logout): Promise<void> {
-        const session = await this.sessionsCommandRepository.findSessionBySessionId(sessionId);
+        const session = await this.sessionsCommandRepository.SQLfindSessionBySessionId(sessionId);
         if (!session) {
             throw new DomainException({
                 code: DomainExceptionCode.Unauthorized,
@@ -33,6 +33,6 @@ export class LogoutHandler implements ICommandHandler<Logout> {
         }
 
         session.makeDeleted();
-        await this.sessionsCommandRepository.save(session);
+        await this.sessionsCommandRepository.SQLsave(session);
     }
 }

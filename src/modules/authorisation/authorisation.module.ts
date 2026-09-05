@@ -32,6 +32,8 @@ import { PasswordRecoveryHandler } from './application/usecases/password-recover
 import { NewPasswordHandler } from './application/usecases/new-password.usecase';
 import { ConfirmRegistrationHandler } from './application/usecases/registration-confirmation.usecase';
 import { RegisterUserHandler } from './application/usecases/registration.usecase';
+import { ResendRegistrationEmailHandler } from './application/usecases/resend-registration-email.usecase';
+import { GetMeInfoQueryHandler } from './application/usecases/get-me-info.usecase';
 
 @Module({
     imports: [
@@ -66,6 +68,8 @@ import { RegisterUserHandler } from './application/usecases/registration.usecase
         // SecurityDevicesController
         ],
     providers: [
+        GetMeInfoQueryHandler,
+        ResendRegistrationEmailHandler,
         RegisterUserHandler,
         ConfirmRegistrationHandler,
         NewPasswordHandler,

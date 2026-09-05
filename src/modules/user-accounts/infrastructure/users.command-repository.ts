@@ -44,8 +44,8 @@ export class UsersCommandRepository {
                                email,
                                password_hash,
                                is_email_confirmed,
-                               confirmation_code,
-                               confirmation_code_expiration_date,
+                               email_confirmation_code,
+                               email_confirmation_expiration_date,
                                first_name,
                                last_name,
                                created_at,
@@ -53,7 +53,13 @@ export class UsersCommandRepository {
                                deleted_at,
                                recovery_code,
                                recovery_code_expiration_date)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) 
+            ON CONFLICT (id) DO
+            UPDATE SET
+                is_email_confirmed = EX
+                email_confirmation_code = EXCLUDED.email_confirmation_code,
+                email_confirmation_expiration_date = EXCLUDED.email_confirmation_expiration_date,
+                updated_at = EXCLUDED.updated_at
         `;
 
         const queryParams = [
@@ -239,5 +245,25 @@ export class UsersCommandRepository {
         }
 
         return null;
+    }
+
+
+    async SQLfindNotConfirmedByEmail(sentEmail: string): Promise<SQLUser | null> {
+        const query = `
+            SELECT *
+            FROM public.users
+            WHERE email = $1
+              AND is_email_confirmed = false
+              AND deleted_at IS NULL
+                LIMIT 1;
+        `;
+
+        const [rawDataFromDb] = await this.dataSource.query(query, [sentEmail]);
+
+        if (!rawDataFromDb) {
+            return null;
+        }
+
+        return SQLUser.reconstruct(rawDataFromDb);
     }
 }

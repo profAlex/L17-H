@@ -17,3 +17,17 @@ export class MeViewDto {
         return new MeViewDto(userDto);
     }
 }
+
+export class SQLMeViewDto {
+    email: string;
+    login: string;
+    userId: string;
+
+    static mapToView(userRow: { userId: string; login: string; email: string }): SQLMeViewDto {
+        const dto = new SQLMeViewDto();
+        dto.email = userRow.email;
+        dto.login = userRow.login;
+        dto.userId = userRow.userId;
+        return dto;
+    }
+}

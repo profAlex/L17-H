@@ -19,7 +19,7 @@ import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dt
 import { NewPasswordInputDto } from './input-dto/new-pasword.input-dto';
 import { RegistrationEmailResendingInputDto } from './input-dto/registration-email-resending.input-dto';
 import { JwtAuthGuard } from '../guards/bearer/jwt.auth-guard';
-import { MeViewDto } from './view-dto/me.view-dto';
+import { MeViewDto, SQLMeViewDto } from './view-dto/me.view-dto';
 import { UserLoginInputDto } from '../../user-accounts/api/input-dto/login-user.input-dto';
 import { Response, Request } from 'express';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -40,6 +40,11 @@ import { PasswordRecoveryCommand } from '../application/usecases/password-recove
 import { NewPasswordCommand } from '../application/usecases/new-password.usecase';
 import { ConfirmRegistrationCommand } from '../application/usecases/registration-confirmation.usecase';
 import { RegisterUserCommand } from '../application/usecases/registration.usecase';
+import {
+    ResendRegistrationEmailCommand,
+    ResendRegistrationEmailHandler,
+} from '../application/usecases/resend-registration-email.usecase';
+import { GetMeInfoQuery } from '../application/usecases/get-me-info.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -207,7 +212,9 @@ export class AuthController {
     async registrationEmailResending(
         @Body() body: RegistrationEmailResendingInputDto,
     ) {
-        return this.authService.resendRegistrationEmail(body.email);
+        return this.commandBus.execute(
+            new ResendRegistrationEmailCommand(body.email),
+        );
     }
 
     @HttpCode(HttpStatus.NO_CONTENT)
@@ -235,6 +242,8 @@ export class AuthController {
     async requestMe(
         @ExtractUserIfExistsFromRequest() user: UserAccessTokenContextDto,
     ): Promise<MeViewDto> {
-        return this.authService.getMeInfo(user.userId);
+        return this.queryBus.execute<SQLMeViewDto>(
+            new GetMeInfoQuery(user.userId),
+        );
     }
 }
