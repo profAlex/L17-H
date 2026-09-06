@@ -35,23 +35,21 @@ export class SessionsCommandRepository {
 
     async SQLsave(session: SQLUserSession): Promise<void> {
         const query = `
-        INSERT INTO public."user_sessions" (
-            "id",
-            "user_id",
-            "device_uuid",
-            "device_name",
-            "device_ip",
-            "issued_at",
-            "expires_at",
-            "created_at",
-            "deleted_at"
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        ON CONFLICT ("id") DO UPDATE SET
-            "issued_at" = EXCLUDED."issued_at",
-            "expires_at" = EXCLUDED."expires_at",
-            "deleted_at" = EXCLUDED."deleted_at";
-    `;
+            INSERT INTO public."user_sessions" ("id",
+                                                "user_id",
+                                                "device_uuid",
+                                                "device_name",
+                                                "device_ip",
+                                                "issued_at",
+                                                "expires_at",
+                                                "created_at",
+                                                "deleted_at")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT ("id") DO
+            UPDATE SET
+                "issued_at" = EXCLUDED."issued_at",
+                "expires_at" = EXCLUDED."expires_at",
+                "deleted_at" = EXCLUDED."deleted_at";
+        `;
 
         const parameters = [
             session.id,
@@ -115,11 +113,11 @@ export class SessionsCommandRepository {
         //
         // -- Индекс для быстрого поиска всех сессий конкретного юзера
         // CREATE INDEX IF NOT EXISTS "idx_user_sessions_user_id" ON "user_sessions" ("user_id");`);
-
     }
 
     async toTestQuery() {
-        return this.dataSource.query(`SELECT * FROM public."Profiles"`);
+        return this.dataSource.query(`SELECT *
+                                      FROM public."Profiles"`);
     }
 
     async findSessionBySessionId(
@@ -135,21 +133,22 @@ export class SessionsCommandRepository {
         // и исключает странные баги с типизацией в некоторых версиях TypeScript.
     }
 
-
-    async SQLfindSessionBySessionId(sessionId: string): Promise<SQLUserSession | null> {
+    async SQLfindSessionBySessionId(
+        sessionId: string,
+    ): Promise<SQLUserSession | null> {
         const query = `
-            SELECT 
-                "id",
-                "user_id",
-                "device_uuid",
-                "device_name",
-                "device_ip",
-                "issued_at",
-                "expires_at",
-                "created_at",
-                "deleted_at"
+            SELECT "id",
+                   "user_id",
+                   "device_uuid",
+                   "device_name",
+                   "device_ip",
+                   "issued_at",
+                   "expires_at",
+                   "created_at",
+                   "deleted_at"
             FROM public."user_sessions"
-            WHERE "id" = $1 AND "deleted_at" IS NULL;
+            WHERE "id" = $1
+              AND "deleted_at" IS NULL;
         `;
 
         const [sessionRow] = await this.dataSource.query(query, [sessionId]);
@@ -170,6 +169,34 @@ export class SessionsCommandRepository {
         }).exec();
     }
 
+
+    async SQLfindSessionByDeviceId(
+        deviceId: string,
+    ): Promise<SQLUserSession | null> {
+        const query = `
+            SELECT "id",
+                   "user_id",
+                   "device_uuid",
+                   "device_name",
+                   "device_ip",
+                   "issued_at",
+                   "expires_at",
+                   "created_at",
+                   "deleted_at"
+            FROM public."user_sessions"
+            WHERE "device_uuid" = $1
+              AND "deleted_at" IS NULL;
+        `;
+
+        const [sessionRow] = await this.dataSource.query(query, [deviceId]);
+
+        if (!sessionRow) {
+            return null;
+        }
+
+        return SQLUserSession.reconstruct(sessionRow);
+    }
+
     // async removeAllButOneSession(
     //     sessionId: string,
     //     userId: string,
@@ -187,7 +214,10 @@ export class SessionsCommandRepository {
     // }
 
     // это более ресурсосберегающий вариант removeAllButOneSession выше, операция без вызова отдельного .makeDeleted и .save(), т.н. атомарная
-    async softDeleteAllButOneSession({sessionId, userId}: SoftDeleteSessionsParams): Promise<boolean> {
+    async softDeleteAllButOneSession({
+        sessionId,
+        userId,
+    }: SoftDeleteSessionsParams): Promise<boolean> {
         const result = await this.SessionModel.updateMany(
             {
                 userId: userId,
@@ -200,5 +230,25 @@ export class SessionsCommandRepository {
         ).exec();
 
         return result.modifiedCount > 0;
+    }
+
+    async SQLsoftDeleteAllButOneSession({
+        sessionId,
+        userId,
+    }: SoftDeleteSessionsParams): Promise<boolean> {
+        const query = `
+            UPDATE public."user_sessions"
+            SET "deleted_at" = NOW()
+            WHERE "user_id" = $1
+              AND "id" <> $2
+              AND "deleted_at" IS NULL RETURNING "id";
+        `;
+
+        const updatedRows = await this.dataSource.query<{ id: string }[]>(
+            query,
+            [userId, sessionId],
+        );
+
+        return updatedRows.length > 0;
     }
 }

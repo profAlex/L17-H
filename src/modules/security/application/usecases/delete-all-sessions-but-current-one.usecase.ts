@@ -11,14 +11,15 @@ export class DeleteAllSessionsButCurrentOne extends Command<void> {
 }
 
 @CommandHandler(DeleteAllSessionsButCurrentOne)
-export class DeleteAllSessionsButCurrentOneHandler implements ICommandHandler<DeleteAllSessionsButCurrentOne> {
+export class DeleteAllSessionsButCurrentOneHandler
+    implements ICommandHandler<DeleteAllSessionsButCurrentOne>
+{
     constructor(
         private readonly sessionsCommandRepository: SessionsCommandRepository,
-
     ) {}
 
     async execute({ userId, sessionId }: DeleteAllSessionsButCurrentOne): Promise<void> {
-        await this.sessionsCommandRepository.softDeleteAllButOneSession({
+        await this.sessionsCommandRepository.SQLsoftDeleteAllButOneSession({
             sessionId,
             userId,
         });

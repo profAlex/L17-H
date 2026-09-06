@@ -50,7 +50,9 @@ export class SecurityController {
     async deleteAllSessionsButCurrentOne(
         @CurrentUserMetaData() user: UserRefreshTokenContextAndMetaDataDto,
     ): Promise<void> {
-        return this.commandBus.execute<DeleteAllSessionsButCurrentOne>(new DeleteAllSessionsButCurrentOne(user.userId, user.sessionId));
+        return this.commandBus.execute<DeleteAllSessionsButCurrentOne>(
+            new DeleteAllSessionsButCurrentOne(user.userId, user.sessionId),
+        );
     }
 
     // Terminate specified device session
@@ -61,6 +63,8 @@ export class SecurityController {
         @Param('deviceId') deviceId: string,
         @CurrentUserMetaData() user: UserRefreshTokenContextAndMetaDataDto,
     ): Promise<void> {
-        return this.commandBus.execute<DeleteSessionByDeviceId>(new DeleteSessionByDeviceId(user.userId, deviceId));
+        return this.commandBus.execute<DeleteSessionByDeviceId>(
+            new DeleteSessionByDeviceId(user.userId, deviceId),
+        );
     }
 }

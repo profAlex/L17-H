@@ -39,3 +39,40 @@ export class DeviceViewDto {
         return new DeviceViewDto(session);
     }
 }
+
+
+export class SQLDeviceViewDto {
+    ip: string;
+    title: string;
+    lastActiveDate: string;
+    deviceId: string;
+
+    constructor(sessionRow: {
+        device_ip: string;
+        device_name: string;
+        issued_at: Date | string;
+        device_uuid: string;
+    }) {
+        this.ip = sessionRow.device_ip;
+        this.title = sessionRow.device_name;
+
+        const issuedAtDate = new Date(sessionRow.issued_at);
+        if (isNaN(issuedAtDate.getTime())) {
+            throw new InternalServerErrorException(
+                `Corrupted session date for device ${sessionRow.device_uuid}`,
+            );
+        }
+
+        this.lastActiveDate = issuedAtDate.toISOString();
+        this.deviceId = sessionRow.device_uuid;
+    }
+
+    static mapToView(sessionRow: {
+        device_ip: string;
+        device_name: string;
+        issued_at: Date | string;
+        device_uuid: string;
+    }): SQLDeviceViewDto {
+        return new SQLDeviceViewDto(sessionRow);
+    }
+}
