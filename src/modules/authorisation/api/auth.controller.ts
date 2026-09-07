@@ -193,10 +193,12 @@ export class AuthController {
     @HttpCode(HttpStatus.NO_CONTENT)
     // @UseGuards(CustomThrottlerGuard)
     @Post('registration')
-    async registration(@Body() body: RegisterNewUserDto): Promise<void> {
-        return this.commandBus.execute(
+    async registration(@Body() body: RegisterNewUserDto) {
+        await this.commandBus.execute(
             new RegisterUserCommand(body.login, body.password, body.email),
         );
+
+        return Promise.resolve("sent");
     }
 
     // Resend confirmation registration Email if user exists
@@ -206,9 +208,11 @@ export class AuthController {
     async registrationEmailResending(
         @Body() body: RegistrationEmailResendingInputDto,
     ) {
-        return this.commandBus.execute(
+        await this.commandBus.execute(
             new ResendRegistrationEmailCommand(body.email),
         );
+
+        return Promise.resolve("sent");
     }
 
     @HttpCode(HttpStatus.NO_CONTENT)
