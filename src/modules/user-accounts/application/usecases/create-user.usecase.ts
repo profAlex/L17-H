@@ -41,6 +41,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUser> {
             confirmationCode: confirmationCode,
         });
 
+        // console.log("newUser created", newUser.id);
         // 2. Сохраняем в PostgreSQL через Command-репозиторий
         await this.usersCommandRepository.SQLsave(newUser);
 

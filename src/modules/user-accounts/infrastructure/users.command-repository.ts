@@ -37,6 +37,9 @@ export class UsersCommandRepository {
         // console.log("<----------------TEST HERE 6");
     }
 
+    //
+
+    /* language=PostgreSQL */
     async SQLsave(user: SQLUser): Promise<void> {
         const query = `
             INSERT INTO users (id,
@@ -56,7 +59,7 @@ export class UsersCommandRepository {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) 
             ON CONFLICT (id) DO
             UPDATE SET
-                is_email_confirmed = EX
+                is_email_confirmed = EXCLUDED.is_email_confirmed,
                 email_confirmation_code = EXCLUDED.email_confirmation_code,
                 email_confirmation_expiration_date = EXCLUDED.email_confirmation_expiration_date,
                 updated_at = EXCLUDED.updated_at
@@ -78,6 +81,8 @@ export class UsersCommandRepository {
             user.recoveryCode,
             user.recoveryCodeExpirationDate,
         ];
+
+        // console.log("query formed successfully");
 
         await this.dataSource.query(query, queryParams);
     }

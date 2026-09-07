@@ -65,6 +65,8 @@ export class UsersController {
             new CreateUser(body),
         );
 
+        // console.log('userId', userId);
+
         return await this.queryBus.execute<SQLUserViewDto>(
             new GetUserByIdOrNotFoundFail(userId),
         );
