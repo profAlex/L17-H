@@ -11,15 +11,15 @@ import { AppConfig } from '../../core/app.config';
             useFactory: async (appConfig: AppConfig) => {
                 return {
                     transport: {
-                        jsonTransport: true,
-                        // host: appConfig.MAIL_HOST, // smtp.yandex.ru
-                        // port: Number(appConfig.MAIL_PORT), // 465 (обязательно числом!)
-                        // secure: true, // true для порта 465 (SSL)
-                        // auth: {
-                        //     user: appConfig.MAIL_LOGIN, // geniusb198
-                        //     pass: appConfig.MAIL_PASS, // ТУТ ДОЛЖЕН БЫТЬ ПАРОЛЬ ПРИЛОЖЕНИЯ
-                        // },
-                        // tls: { rejectUnauthorized: false },
+                        // jsonTransport: true,
+                        host: appConfig.MAIL_HOST, // smtp.yandex.ru
+                        port: Number(appConfig.MAIL_PORT), // 465 (обязательно числом!)
+                        secure: true, // true для порта 465 (SSL)
+                        auth: {
+                            user: appConfig.MAIL_LOGIN, // geniusb198
+                            pass: appConfig.MAIL_PASS, // ТУТ ДОЛЖЕН БЫТЬ ПАРОЛЬ ПРИЛОЖЕНИЯ
+                        },
+                        tls: { rejectUnauthorized: false },
                     },
                     defaults: {
                         from: '"test-notification" <geniusb198@yandex.ru>',
