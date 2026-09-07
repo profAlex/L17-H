@@ -133,13 +133,13 @@ export class UsersCommandRepository {
                 "email",
                 "password_hash",
                 "created_at",
-                "is_confirmed",
-                "confirmation_code",
-                "confirmation_code_expiration_date",
+                "is_email_confirmed",
+                "email_confirmation_code",
+                "email_confirmation_expiration_date",
                 "recovery_code",
                 "recovery_code_expiration_date"
             FROM public."users"
-            WHERE "email" = $1 AND "is_confirmed" = true;
+            WHERE "email" = $1 AND "is_email_confirmed" = true;
         `;
 
         const [userRow] = await this.dataSource.query(query, [email]);
@@ -160,9 +160,9 @@ export class UsersCommandRepository {
                 "email",
                 "password_hash",
                 "created_at",
-                "is_confirmed",
-                "confirmation_code",
-                "confirmation_code_expiration_date",
+                "is_email_confirmed",
+                "email_confirmation_code",
+                "email_confirmation_expiration_date",
                 "recovery_code",
                 "recovery_code_expiration_date",
                 "deleted_at"
@@ -186,21 +186,24 @@ export class UsersCommandRepository {
         confirmationCode: string,
     ): Promise<SQLUser | null> {
         const query = `
-            SELECT 
+            SELECT
                 "id",
                 "login",
                 "email",
                 "password_hash",
+                "first_name",
+                "last_name",
                 "created_at",
-                "is_confirmed",
-                "confirmation_code",
-                "confirmation_code_expiration_date",
+                "updated_at",
+                "is_email_confirmed",
+                "email_confirmation_code",
+                "email_confirmation_expiration_date",
                 "recovery_code",
                 "recovery_code_expiration_date",
                 "deleted_at"
             FROM public."users"
-            WHERE "confirmation_code" = $1
-              AND "confirmation_code_expiration_date" >= NOW()
+            WHERE "email_confirmation_code" = $1
+              AND "email_confirmation_expiration_date" >= NOW()
               AND "deleted_at" IS NULL;
         `;
 

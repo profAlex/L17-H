@@ -20,6 +20,9 @@ export class ConfirmRegistrationHandler implements ICommandHandler<ConfirmRegist
             await this.usersCommandRepository.SQLfindUserByConfirmationCode(
                 code,
             );
+        console.warn("...name:", userToBeConfirmed?.name);
+        console.warn("...confirmation code received:", code);
+        console.warn("...for user:", userToBeConfirmed?.id);
 
         if (!userToBeConfirmed) {
             throw new DomainException({
@@ -37,6 +40,8 @@ export class ConfirmRegistrationHandler implements ICommandHandler<ConfirmRegist
         }
 
         userToBeConfirmed.confirmEmail();
+
+        console.warn("...confirmation marked successfully");
 
         await this.usersCommandRepository.SQLsave(userToBeConfirmed);
     }
