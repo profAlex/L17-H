@@ -7,7 +7,7 @@ export class EmailService {
 
     async sendConfirmationEmail(email: string, code: string): Promise<void> {
         //can add html templates, implement advertising and other logic for mailing...
-        this.mailerService
+        await this.mailerService
             .sendMail({
                 subject: `finish registration`,
                 to: email,
@@ -30,7 +30,7 @@ export class EmailService {
     }
 
     async sendRecoveryEmail(email: string, code: string): Promise<void> {
-        this.mailerService
+        await this.mailerService
             .sendMail({
                 subject: `password recovery`,
                 to: email,
