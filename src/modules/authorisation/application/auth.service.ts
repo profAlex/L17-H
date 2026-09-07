@@ -8,11 +8,13 @@ import { UUIDGeneratorUtil } from '../../../core/uuid-generation/uuid.service';
 import { MeViewDto } from '../api/view-dto/me.view-dto';
 import { DomainException } from '../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../core/exceptions/domain-exception-codes';
+import { UsersQueryRepository } from '../../user-accounts/infrastructure/query/users.query-repository';
 
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UsersService,
+        private usersQueryRepository: UsersQueryRepository,
         private cryptoService: CryptoService,
         private jwtService: JwtService,
         private emailService: EmailService,
@@ -24,7 +26,7 @@ export class AuthService {
         loginOrEmail: string,
         password: string,
     ): Promise<UserAccessTokenContextDto | null> {
-        const user = await this.usersService.findUserByLogin(loginOrEmail);
+        const user = await this.usersQueryRepository.SQLfindUserByLogin(loginOrEmail);
 
         if (!user) {
             return null;

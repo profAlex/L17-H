@@ -62,7 +62,8 @@ export class UsersCommandRepository {
                 is_email_confirmed = EXCLUDED.is_email_confirmed,
                 email_confirmation_code = EXCLUDED.email_confirmation_code,
                 email_confirmation_expiration_date = EXCLUDED.email_confirmation_expiration_date,
-                updated_at = EXCLUDED.updated_at
+                updated_at = EXCLUDED.updated_at,
+                deleted_at = EXCLUDED.deleted_at
         `;
 
         const queryParams = [

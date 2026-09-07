@@ -25,7 +25,7 @@ export class EmailService {
         //     });
         //
         // return Promise.resolve();
-        return;
+        return Promise.resolve();
     }
 
     async sendRecoveryEmail(email: string, code: string): Promise<void> {
@@ -48,6 +48,6 @@ export class EmailService {
         //
         // return Promise.resolve();
 
-        return;
+        return Promise.resolve();
     }
 }

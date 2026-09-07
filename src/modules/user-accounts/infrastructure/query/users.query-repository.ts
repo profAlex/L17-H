@@ -283,6 +283,28 @@ export class UsersQueryRepository {
         return UserAuthInternalDto.mapToView(user);
     }
 
+    /* language = SQL */
+    async SQLfindUserByLogin(
+        loginOrEmail: string,
+    ): Promise<{id:string, passwordHash:string} | null> {
+        const query = `
+            SELECT 
+                id AS "id", 
+                password_hash AS "passwordHash" 
+            FROM users
+            WHERE (login = $1 OR email = $1) AND deleted_at IS NULL; 
+        `;
+
+        const [usersRow] = await this.dataSource.query<{id:string, passwordHash:string}[]>(query,[loginOrEmail]);
+
+        if (!usersRow) {
+            return null;
+        }
+
+        return usersRow;
+    }
+
+
     async checkIfUserExists(
         login: string,
         email: string,
