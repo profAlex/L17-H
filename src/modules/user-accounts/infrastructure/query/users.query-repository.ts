@@ -84,12 +84,12 @@ export class UsersQueryRepository {
     }
 
     async SQLgetMeByIdOrNotFoundFail(id: string): Promise<SQLMeViewDto> {
-
+        // все алиасы без двойных кавычек принудительно приводятся к нижнему регистру (userid)!
         const meQuery = `
-        SELECT id AS userId, login, email
-        FROM users
-        WHERE id = $1 AND deleted_at IS NULL;
-        `
+            SELECT id AS userId, login, email
+            FROM users
+            WHERE id = $1 AND deleted_at IS NULL;
+        `;
 
         const [userRow] = await this.dataSource.query<{userId:string, login:string, email:string}[]>(meQuery, [id]);
 

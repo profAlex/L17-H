@@ -41,7 +41,6 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
             secretOrKey: appConfig.REFRESH_TOKEN_SECRET,
         });
 
-        console.warn("We got here?");
     }
 
     async validate(
@@ -58,9 +57,6 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
             throw new UnauthorizedException('Improper refresh token structure');
         }
 
-        console.warn("We got inside validate?");
-
-
         // в JWT спецификации (RFC 7519) поля iat (Issued At) и exp (Expiration Time) всегда хранятся в секундах
         // для корректного преобразования значение из JWT нужно умножить на 1000, т.к. класс Date принимают метку времени в миллисекундах
         const issuedAt = new Date(payload.iat * 1000);
@@ -73,9 +69,6 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
                 expiresAt: expiresAt,
                 issuedAt: issuedAt,
             });
-
-        console.warn("Session ID: ", sessionId);
-
 
         if (sessionId === null) {
             throw new UnauthorizedException('Session not found');

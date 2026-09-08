@@ -1,18 +1,18 @@
-import {Module} from "@nestjs/common";
-import {AuthController} from "./api/auth.controller";
-import {JwtModule} from "@nestjs/jwt";
-import {envConfig} from "../../config_old";
-import {NotificationsModule} from "../notifications/notifications.module";
-import {UserAccountsModule} from "../user-accounts/user-accounts.module";
-import {CryptoService} from "../../core/bcrypt/bcrypt.service";
-import {AuthService} from "./application/auth.service";
-import {LocalStrategy} from "./guards/local/local.strategy";
-import {JwtStrategy} from "./guards/bearer/jwt.strategy";
-import {UsersService} from "../user-accounts/application/users.service";
-import {MongooseModule} from "@nestjs/mongoose";
-import {User, UserSchema} from "../user-accounts/domain/user.entity";
-import {UsersCommandRepository} from "../user-accounts/infrastructure/users.command-repository";
-import {UsersQueryRepository} from "../user-accounts/infrastructure/query/users.query-repository";
+import { Module } from '@nestjs/common';
+import { AuthController } from './api/auth.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { envConfig } from '../../config_old';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { UserAccountsModule } from '../user-accounts/user-accounts.module';
+import { CryptoService } from '../../core/bcrypt/bcrypt.service';
+import { AuthService } from './application/auth.service';
+import { LocalStrategy } from './guards/local/local.strategy';
+import { JwtStrategy } from './guards/bearer/jwt.strategy';
+import { UsersService } from '../user-accounts/application/users.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from '../user-accounts/domain/user.entity';
+import { UsersCommandRepository } from '../user-accounts/infrastructure/users.command-repository';
+import { UsersQueryRepository } from '../user-accounts/infrastructure/query/users.query-repository';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../core/app.config';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -37,10 +37,10 @@ import { GetMeInfoQueryHandler } from './application/usecases/get-me-info.usecas
 
 @Module({
     imports: [
-    //     JwtModule.register({
-    //     secret: process.env.ACCESS_TOKEN_SECRET,
-    //     signOptions: {expiresIn: '60m'}
-    // }),
+        //     JwtModule.register({
+        //     secret: process.env.ACCESS_TOKEN_SECRET,
+        //     signOptions: {expiresIn: '60m'}
+        // }),
         JwtModule.registerAsync({
             // Если AppConfig не импортирован глобально как модуль,
             // его нужно раскомментировать здесь в imports:
@@ -51,7 +51,13 @@ import { GetMeInfoQueryHandler } from './application/usecases/get-me-info.usecas
                 // signOptions: { expiresIn: `${appConfig.ACCESS_TOKEN_LIFETIME}s` },
             }),
         }),
-        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }, { name: Session.name, schema: SessionSchema }]),
+        MongooseModule.forFeature([
+            { name: User.name, schema: UserSchema },
+            {
+                name: Session.name,
+                schema: SessionSchema,
+            },
+        ]),
         NotificationsModule,
         UserAccountsModule,
         ThrottlerModule.forRootAsync({
@@ -64,9 +70,10 @@ import { GetMeInfoQueryHandler } from './application/usecases/get-me-info.usecas
             ],
         }),
     ],
-    controllers: [AuthController,
+    controllers: [
+        AuthController,
         // SecurityDevicesController
-        ],
+    ],
     providers: [
         GetMeInfoQueryHandler,
         ResendRegistrationEmailHandler,
@@ -84,7 +91,7 @@ import { GetMeInfoQueryHandler } from './application/usecases/get-me-info.usecas
         AuthService,
         // SecurityDevicesQueryRepository,
         LocalStrategy, // Паспортная стратегия для логина
-        JwtStrategy,   // Паспортная стратегия для гвардов
+        JwtStrategy, // Паспортная стратегия для гвардов
         BasicAuthStrategy,
         JwtRefreshTokenStrategy,
         CryptoService,
@@ -96,6 +103,4 @@ import { GetMeInfoQueryHandler } from './application/usecases/get-me-info.usecas
     ],
     exports: [],
 })
-
-export class AuthorisationModule {
-}
+export class AuthorisationModule {}
