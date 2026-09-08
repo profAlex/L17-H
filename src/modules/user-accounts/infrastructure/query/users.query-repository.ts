@@ -86,8 +86,8 @@ export class UsersQueryRepository {
     async SQLgetMeByIdOrNotFoundFail(id: string): Promise<SQLMeViewDto> {
         // все алиасы без двойных кавычек принудительно приводятся к нижнему регистру (userid)!
         const meQuery = `
-            SELECT id AS userId, login, email
-            FROM users
+            SELECT id AS "userId", login, email
+            FROM public."users"
             WHERE id = $1 AND deleted_at IS NULL;
         `;
 
