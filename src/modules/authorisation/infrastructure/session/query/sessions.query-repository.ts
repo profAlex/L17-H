@@ -48,8 +48,8 @@ export class SessionsQueryRepository {
             FROM public."user_sessions"
             WHERE user_id = $1
               AND "device_uuid" = $2
-              AND expires_at = $3:timestamptz 
-              AND issued_at = $4:timestamptz
+              AND expires_at = $3::timestamptz 
+              AND issued_at = $4::timestamptz
               AND deleted_at IS NULL
             LIMIT 1;
         `;

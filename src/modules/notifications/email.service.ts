@@ -24,7 +24,7 @@ export class EmailService {
                 );
             });
 
-        console.warn(".. email sent ...");
+        // console.warn(".. email sent ...");
 
         return;
     }
@@ -47,7 +47,7 @@ export class EmailService {
                 );
             });
 
-        console.warn(".. email sent ...");
+        // console.warn(".. email sent ...");
 
         return;
     }

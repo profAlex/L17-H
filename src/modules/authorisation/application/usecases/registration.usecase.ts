@@ -73,7 +73,7 @@ export class RegisterUserHandler implements ICommandHandler<RegisterUserCommand>
             );
         }
 
-        console.warn("...about to send email... code:", codeToSend );
+        // console.warn("...about to send email... code:", codeToSend );
         // 6. Отправляем подтверждение на почту
         await this.emailService.sendConfirmationEmail(
             newUser.email,

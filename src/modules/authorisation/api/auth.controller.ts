@@ -194,11 +194,9 @@ export class AuthController {
     @UseGuards(CustomThrottlerGuard)
     @Post('registration')
     async registration(@Body() body: RegisterNewUserDto) {
-        await this.commandBus.execute(
+        return this.commandBus.execute(
             new RegisterUserCommand(body.login, body.password, body.email),
         );
-
-        return Promise.resolve("sent");
     }
 
     // Resend confirmation registration Email if user exists
