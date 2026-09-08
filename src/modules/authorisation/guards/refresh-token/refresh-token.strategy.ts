@@ -62,7 +62,7 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
         const expiresAt = new Date(payload.exp * 1000);
 
         const sessionId =
-            await this.sessionsQueryRepository.checkIfSessionExists({
+            await this.sessionsQueryRepository.SQLcheckIfSessionExists({
                 userId: payload.userId,
                 deviceId: payload.deviceId,
                 expiresAt: expiresAt,

@@ -34,6 +34,38 @@ export class SessionsQueryRepository {
         return session ? session._id.toString() : null;
     }
 
+    async SQLcheckIfSessionExists({
+                                   userId,
+                                   deviceId,
+                                   expiresAt,
+                                   issuedAt,
+                               }: SessionParameters): Promise<string | null> {
+
+        // надежнее приводить Date к типу TIMESTAMPTZ? т.к. прямое сравнение через = может не совпасть на миллисекунды
+        // всегда добавляйте LIMIT 1, без LIMIT 1 вернет весь массив совпадений, надежнее добавлять
+        const query = `
+            SELECT id AS "sessionId"
+            FROM public."user_sessions"
+            WHERE user_id = $1
+              AND "device_uuid" = $2
+              AND expires_at = $3:timestamptz 
+              AND issued_at = $4:timestamptz
+              AND deleted_at IS NULL
+            LIMIT 1;
+        `;
+
+        const [sessionRaw] = await this.dataSource.query<{sessionId:string}[]>(query, [userId,
+            deviceId,
+            expiresAt,
+            issuedAt]);
+
+        if (!sessionRaw) {
+            return null;
+        }
+
+        return sessionRaw.sessionId;
+    }
+
     async getActiveSessionList(userId: string): Promise<FlattenMaps<Session>[]> {
         const currentDate = new Date();
         return this.SessionModel.find({
