@@ -96,9 +96,10 @@ export class AuthController {
 
     // Try login user to the system
     @HttpCode(HttpStatus.OK)
-    @UseGuards(LocalAuthGuard)
-    // @UseGuards(CustomThrottlerGuard)
-    @UseGuards(ThrottlerGuard)
+    // @UseGuards(LocalAuthGuard)
+    // // @UseGuards(CustomThrottlerGuard)
+    // @UseGuards(ThrottlerGuard)
+    @UseGuards(ThrottlerGuard, LocalAuthGuard)
     @Post('login')
     async login(
         // @Body() body: UserLoginInputDto,
