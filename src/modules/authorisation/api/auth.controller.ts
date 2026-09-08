@@ -215,8 +215,6 @@ export class AuthController {
         await this.commandBus.execute(
             new ResendRegistrationEmailCommand(body.email),
         );
-
-        return Promise.resolve("sent");
     }
 
     @HttpCode(HttpStatus.NO_CONTENT)
